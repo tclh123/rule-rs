@@ -1,5 +1,8 @@
+# project related
 *.sw[op]
+/tmp
 
+# cargo related
 /target
 **/*.rs.bk
 Cargo.lock
