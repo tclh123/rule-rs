@@ -1,5 +1,5 @@
-#[macro_use]
 extern crate serde_json;
+pub use serde_json::json;
 
 #[doc(inline)]
 pub use self::rule::Rule;
