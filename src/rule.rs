@@ -32,13 +32,13 @@ impl Rule {
 }
 
 #[derive(Clone, Debug)]
-struct Expr {
+pub struct Expr {
     op: Op,
     args: Vec<Arg>,
 }
 
 #[derive(Clone, Debug)]
-enum Arg {
+pub enum Arg {
     Null,
     Bool(bool),
     Number(Number),
@@ -49,8 +49,21 @@ enum Arg {
 impl Into<Option<Expr>> for Arg {
     fn into(self) -> Option<Expr> {
         match self {
-            Arg::Expr(e) => Some(e),
+            Arg::Expr(v) => Some(v),
             _ => None,
+        }
+    }
+}
+
+impl Into<Arg> for Json {
+    fn into(self) -> Arg {
+        match self {
+            Json::Null => Arg::Null,
+            Json::Bool(v) => Arg::Bool(v),
+            Json::Number(v) => Arg::Number(v),
+            Json::String(v) => Arg::String(v),
+            Json::Array(v) => Arg::Expr(Expr::from_vec(v).unwrap()),
+            Json::Object(v) => Arg::Expr(Expr::from_vec(v.values().cloned().collect()).unwrap()),
         }
     }
 }
@@ -58,7 +71,7 @@ impl Into<Option<Expr>> for Arg {
 impl Arg {
     fn as_bool(self) -> Option<bool> {
         match self {
-            Arg::Bool(b) => Some(b),
+            Arg::Bool(v) => Some(v),
             _ => None,
         }
     }
@@ -67,17 +80,21 @@ impl Arg {
 // TODO:
 impl Expr {
     fn new(val: Json) -> Result<Expr> {
-        // let args = match val {
-        //     // TODO: Vec<Json> to Vec<Arg>
-        //     Json::Array(args) => args,
-        //     _ => None,
-        // };
-        // if val.as_array()
-        //     ExprNotArrayError
+        match val {
+            Json::Array(args) => {
+                Expr::from_vec(args)
+            },
+            _ => Err(Error::ExprNotArrayError),
+        }
+    }
 
-        let op = Op {};
-        let args = vec![];
-        Ok(Expr { op: op, args: args })
+    fn from_vec(val: Vec<Json>) -> Result<Expr> {
+        let mut args = val.into_iter().map(|x| x.into()).collect::<Vec<_>>();
+        // args[0]
+        args.remove(0);
+        // TODO:
+        let op = Op::get("=").unwrap();
+        Ok(Expr { op: op.clone(), args: args })
     }
 
     pub fn matches<T: Serialize>(&self, context: &T) -> Result<Arg> {
@@ -85,10 +102,8 @@ impl Expr {
             if let Arg::Expr(expr) = arg { expr.matches(context).unwrap() } else { arg.clone() }
             ).collect::<Vec<_>>();
         println!("DEBUG: args: {:?}", args);
-        // for arg in self.args {
-        //     if arg {
-        //     }
-        // }
-        Ok(Arg::Bool(true))
+        println!("DEBUG: op: {:?}", self.op);
+        Ok((self.op.func)(args))
+        // Ok(Arg::Bool(true))
     }
 }

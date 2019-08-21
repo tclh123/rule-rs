@@ -34,3 +34,10 @@ fn rule_match_handle_error() -> Result<()> {
     assert!(Rule::new(json!(["=", "a", 1]))?.matches(context)?);
     Ok(())
 }
+
+#[test]
+fn rule_recur_match() -> Result<()> {
+    let context = json!({"a": 1, "world": "hello"});
+    assert!(Rule::new(json!(["=", ["var", "a"], 1]))?.matches(context)?);
+    Ok(())
+}
