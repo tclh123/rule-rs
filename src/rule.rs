@@ -33,13 +33,13 @@ impl Rule {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Expr {
     op: Op,
     args: Vec<Arg>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Arg {
     Null,
     Bool(bool),
@@ -71,12 +71,26 @@ impl Into<Arg> for Json {
 }
 
 impl Arg {
-    fn as_bool(self) -> Option<bool> {
-        match self {
+    fn as_bool(&self) -> Option<bool> {
+        match *self {
             Arg::Bool(v) => Some(v),
             _ => None,
         }
     }
+
+    fn as_str(&self) -> Option<&str> {
+        match *self {
+            Arg::String(ref v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // fn as_string(&self) -> Option<String> {
+    //     match *self {
+    //         Arg::String(ref v) => Some(v.to_owned()),
+    //         _ => None,
+    //     }
+    // }
 
     fn from_json(val: Json) -> Result<Arg> {
         match val {
@@ -88,9 +102,13 @@ impl Arg {
             Json::Object(v) => Ok(Arg::Expr(Expr::from_vec(v.values().cloned().collect())?)),
         }
     }
+
+    fn from_context_var(args: &Vec<Arg>, context: &Map<String, Json>) -> Result<Arg> {
+        Arg::from_json(context.get(args[0].as_str().ok_or(Error::ExprVarArgNotStringError)?)
+            .ok_or(Error::ContextNoSuchVarError)?.clone())
+    }
 }
 
-// TODO:
 impl Expr {
     fn new(val: Json) -> Result<Expr> {
         match val {
@@ -123,20 +141,23 @@ impl Expr {
     }
 
     pub fn matches_json_dict(&self, context: &Map<String, Json>) -> Result<Arg> {
-        let args = self.args.iter().map(|arg|
+        let mut args = self.args.iter().map(|arg|
             if let Arg::Expr(expr) = arg { expr.matches_json_dict(context) } else { Ok(arg.clone()) }
             ).collect::<Result<Vec<_>>>()?;
         println!("DEBUG: args: {:?}", args);
         println!("DEBUG: op: {:?}", self.op);
 
-        // if &self.op.name == "var" {
-        //     match context {
-        //         Json::
-        //     }
-        //     context. args[0]
-        // }
-
-        Ok((self.op.func)(args))
+        if &self.op.name == "var" {
+            // special op var
+            Arg::from_context_var(&args, context)
+        } else {
+            // always try first arg with context var
+            let var = Arg::from_context_var(&args, context);
+            if var.is_ok() {
+                args[0] = var?;
+            }
+            Ok((self.op.func)(args))
+        }
         // Ok(Arg::Bool(true))
     }
 }

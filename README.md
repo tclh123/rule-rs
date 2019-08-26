@@ -28,6 +28,11 @@ fn main() -> Result<()> {
 }
 ```
 
+## ToDos
+
+- [ ] add more built Ops
+- [ ] support register custom Ops
+
 ## License
 
 http://tclh123.mit-license.org/

@@ -41,3 +41,5 @@ fn rule_recur_match() -> Result<()> {
     assert!(Rule::new(json!(["=", ["var", "a"], 1]))?.matches(context)?);
     Ok(())
 }
+
+// TODO: more tests

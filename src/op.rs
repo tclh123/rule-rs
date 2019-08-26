@@ -6,11 +6,7 @@ use crate::rule::Arg;
 
 type Func = fn(Vec<Arg>) -> Arg;
 
-// TODO: var?
-// how to get func from func name?
-// 变长参数列表? Vec?
-// Fn(Vec<Arg>) -> Arg
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Op {
     pub name: String,
     pub aliases: Option<Vec<String>>,
@@ -20,6 +16,7 @@ pub struct Op {
 // TODO:
 // 1. static hashmap -> built-in ops
 // 2. custom ops register to whom? maybe just use a global static mut hashmap
+// 3. add more ops
 
 lazy_static! {
     static ref OPS: HashMap<&'static str, Op> = {
@@ -64,11 +61,12 @@ impl Op {
 //     a + b
 // }
 
-// TODO:
 fn eq(args: Vec<Arg>) -> Arg {
-    Arg::Bool(true)
+    Arg::Bool(args.windows(2).all(|w| w[0] == w[1]))
+    // Arg::Bool(true)
 }
 
+// just a placeholder, will not be called
 fn var(args: Vec<Arg>) -> Arg {
-    Arg::Bool(true)
+    args[0].clone()
 }
