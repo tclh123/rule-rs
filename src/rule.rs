@@ -24,7 +24,9 @@ impl Rule {
         Rule::new(to_value(val)?)
     }
 
-    // TODO: from_str
+    pub fn from_str(s: &str) -> Result<Rule> {
+        Rule::new(serde_json::from_str(s)?)
+    }
 
     pub fn matches<T: Serialize>(&self, context: T) -> Result<bool> {
         // self.expr.matches(&context).map(|x| x.as_bool().unwrap())

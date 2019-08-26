@@ -21,8 +21,10 @@ fn main() -> Result<()> {
     assert!(Rule::new(json!(["=", "a", 1]))?.matches(context)?);
     assert!(Rule::new(json!(["=", ["var", "a"], 1]))?.matches(context)?);
     assert!(Rule::from_str(r#"["=", ["var", "a"], 1]"#)?.matches(context)?);
+    assert!(Rule::from_value(["=", "world", "hello"])?.matches(context)?);
 
-    assert!(rule!(["=", "a", 1]).matches(context)?);
+    // TODO:
+    // assert!(rule!(["=", "a", 1]).matches(context)?);
 
     Ok(())
 }
@@ -30,8 +32,9 @@ fn main() -> Result<()> {
 
 ## ToDos
 
-- [ ] add more built Ops
-- [ ] support register custom Ops
+- [ ] add more built-in `Op`s
+- [ ] support register custom `Op`s
+- [ ] support `rule!` macro
 
 ## License
 
