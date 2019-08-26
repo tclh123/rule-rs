@@ -2,6 +2,7 @@ use std::convert::Into;
 
 use serde::Serialize;
 use serde_json::value::{to_value, Value as Json, Number};
+use serde_json::Map;
 
 use crate::op::Op;
 use crate::error::{Error, Result};
@@ -26,7 +27,8 @@ impl Rule {
     // TODO: from_str
 
     pub fn matches<T: Serialize>(&self, context: T) -> Result<bool> {
-        self.expr.matches(&context).map(|x| x.as_bool().unwrap())
+        // self.expr.matches(&context).map(|x| x.as_bool().unwrap())
+        self.expr.matches(&context)?.as_bool().ok_or(Error::FinalResultNotBoolError)
         // Ok(true)
     }
 }
@@ -113,11 +115,27 @@ impl Expr {
     }
 
     pub fn matches<T: Serialize>(&self, context: &T) -> Result<Arg> {
+        self.matches_json(&to_value(context)?)
+    }
+
+    pub fn matches_json(&self, context: &Json) -> Result<Arg> {
+        self.matches_json_dict(context.as_object().ok_or(Error::ContextNotDictError)?)
+    }
+
+    pub fn matches_json_dict(&self, context: &Map<String, Json>) -> Result<Arg> {
         let args = self.args.iter().map(|arg|
-            if let Arg::Expr(expr) = arg { expr.matches(context).unwrap() } else { arg.clone() }
-            ).collect::<Vec<_>>();
+            if let Arg::Expr(expr) = arg { expr.matches_json_dict(context) } else { Ok(arg.clone()) }
+            ).collect::<Result<Vec<_>>>()?;
         println!("DEBUG: args: {:?}", args);
         println!("DEBUG: op: {:?}", self.op);
+
+        // if &self.op.name == "var" {
+        //     match context {
+        //         Json::
+        //     }
+        //     context. args[0]
+        // }
+
         Ok((self.op.func)(args))
         // Ok(Arg::Bool(true))
     }

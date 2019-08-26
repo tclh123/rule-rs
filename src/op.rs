@@ -24,6 +24,7 @@ pub struct Op {
 lazy_static! {
     static ref OPS: HashMap<&'static str, Op> = {
         let mut map = HashMap::new();
+        map.insert("var", Op::new("var", var as Func));
         map.insert("=", Op::new("=", eq as Func));
         map
     };
@@ -68,3 +69,6 @@ fn eq(args: Vec<Arg>) -> Arg {
     Arg::Bool(true)
 }
 
+fn var(args: Vec<Arg>) -> Arg {
+    Arg::Bool(true)
+}

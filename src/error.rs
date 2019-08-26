@@ -7,6 +7,8 @@ pub enum Error {
     ExprOpIsNotStringError,
     ExprBuildError,
     NoSuchOpError,
+    ContextNotDictError,
+    FinalResultNotBoolError,
     MatchError,
 }
 
