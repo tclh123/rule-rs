@@ -13,18 +13,18 @@ Or, you can just use the special `var` operator to indicate the context paramete
 ## Usage
 
 ```rust
-use rule::{Rule, rule, Result, json};
+use rule::{Rule, Result, json};
 
 fn main() -> Result<()> {
     let context = json!({"a": 1, "world": "hello"});
 
-    assert!(Rule::new(json!(["=", "a", 1]))?.matches(context)?);
-    assert!(Rule::new(json!(["=", ["var", "a"], 1]))?.matches(context)?);
-    assert!(Rule::from_str(r#"["=", ["var", "a"], 1]"#)?.matches(context)?);
-    assert!(Rule::from_value(["=", "world", "hello"])?.matches(context)?);
+    assert!(Rule::new(json!(["=", "a", 1]))?.matches(&context)?);
+    assert!(Rule::new(json!(["=", ["var", "a"], 1]))?.matches(&context)?);
+    assert!(Rule::from_str(r#"["=", ["var", "a"], 1]"#)?.matches(&context)?);
+    assert!(Rule::from_value(["=", "world", "hello"])?.matches(&context)?);
 
     // TODO:
-    // assert!(rule!(["=", "a", 1]).matches(context)?);
+    // assert!(rule!(["=", "a", 1]).matches(&context)?);
 
     Ok(())
 }

@@ -32,34 +32,34 @@ fn rule_match() {
     let _rule = Rule::new(json!(["=", "a", 1])).unwrap();
 
     let context = json!({"a": 1, "world": "hello"});
-    assert!(_rule.matches(context).unwrap());
+    assert!(_rule.matches(&context).unwrap());
 }
 
 #[test]
 fn rule_match_handle_error() -> Result<()> {
     let context = json!({"a": 1, "world": "hello"});
-    assert!(Rule::new(json!(["=", "a", 1]))?.matches(context)?);
+    assert!(Rule::new(json!(["=", "a", 1]))?.matches(&context)?);
     Ok(())
 }
 
 #[test]
 fn rule_recur_match() -> Result<()> {
     let context = json!({"a": 1, "world": "hello"});
-    assert!(Rule::new(json!(["=", ["var", "a"], 1]))?.matches(context)?);
+    assert!(Rule::new(json!(["=", ["var", "a"], 1]))?.matches(&context)?);
     Ok(())
 }
 
 #[test]
 fn rule_match_from_str() -> Result<()>{
     let context = json!({"a": 1, "world": "hello"});
-    assert!(Rule::from_str(r#"["=", ["var", "a"], 1]"#)?.matches(context)?);
+    assert!(Rule::from_str(r#"["=", ["var", "a"], 1]"#)?.matches(&context)?);
     Ok(())
 }
 
 #[test]
 fn rule_match_from_value() -> Result<()> {
     let context = json!({"a": 1, "world": "hello"});
-    assert!(Rule::from_value(["=", "world", "hello"])?.matches(context)?);
+    assert!(Rule::from_value(["=", "world", "hello"])?.matches(&context)?);
     Ok(())
 }
 
@@ -72,7 +72,7 @@ struct Context<'a> {
 #[test]
 fn rule_match_context_struct() -> Result<()>{
     let context = Context { a: 1, world: "hello" };
-    assert!(Rule::new(json!(["=", "a", 1]))?.matches(context.clone())?);
-    assert!(Rule::new(json!(["=", "world", "hello"]))?.matches(context.clone())?);
+    assert!(Rule::new(json!(["=", "a", 1]))?.matches(&context)?);
+    assert!(Rule::new(json!(["=", "world", "hello"]))?.matches(&context)?);
     Ok(())
 }

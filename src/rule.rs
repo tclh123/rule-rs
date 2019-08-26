@@ -28,9 +28,9 @@ impl Rule {
         Rule::new(serde_json::from_str(s)?)
     }
 
-    pub fn matches<T: Serialize>(&self, context: T) -> Result<bool> {
+    pub fn matches<T: Serialize>(&self, context: &T) -> Result<bool> {
         // self.expr.matches(&context).map(|x| x.as_bool().unwrap())
-        self.expr.matches(&context)?.as_bool().ok_or(Error::FinalResultNotBoolError)
+        self.expr.matches(context)?.as_bool().ok_or(Error::FinalResultNotBoolError)
         // Ok(true)
     }
 }
@@ -146,8 +146,8 @@ impl Expr {
         let mut args = self.args.iter().map(|arg|
             if let Arg::Expr(expr) = arg { expr.matches_json_dict(context) } else { Ok(arg.clone()) }
             ).collect::<Result<Vec<_>>>()?;
-        println!("DEBUG: args: {:?}", args);
-        println!("DEBUG: op: {:?}", self.op);
+        // println!("DEBUG: args: {:?}", args);
+        // println!("DEBUG: op: {:?}", self.op);
 
         if &self.op.name == "var" {
             // special op var
