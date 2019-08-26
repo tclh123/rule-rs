@@ -3,8 +3,10 @@ use std::result;
 #[derive(Debug)]
 pub enum Error {
     JsonError(serde_json::Error),
-    ExprNotArrayError,
+    ExprIsNotArrayError,
+    ExprOpIsNotStringError,
     ExprBuildError,
+    NoSuchOpError,
     MatchError,
 }
 

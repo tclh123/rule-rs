@@ -75,6 +75,17 @@ impl Arg {
             _ => None,
         }
     }
+
+    fn from_json(val: Json) -> Result<Arg> {
+        match val {
+            Json::Null => Ok(Arg::Null),
+            Json::Bool(v) => Ok(Arg::Bool(v)),
+            Json::Number(v) => Ok(Arg::Number(v)),
+            Json::String(v) => Ok(Arg::String(v)),
+            Json::Array(v) => Ok(Arg::Expr(Expr::from_vec(v)?)),
+            Json::Object(v) => Ok(Arg::Expr(Expr::from_vec(v.values().cloned().collect())?)),
+        }
+    }
 }
 
 // TODO:
@@ -84,16 +95,20 @@ impl Expr {
             Json::Array(args) => {
                 Expr::from_vec(args)
             },
-            _ => Err(Error::ExprNotArrayError),
+            _ => Err(Error::ExprIsNotArrayError),
         }
     }
 
     fn from_vec(val: Vec<Json>) -> Result<Expr> {
-        let mut args = val.into_iter().map(|x| x.into()).collect::<Vec<_>>();
-        // args[0]
-        args.remove(0);
-        // TODO:
-        let op = Op::get("=").unwrap();
+        let mut args: Vec<Arg> = val.into_iter().map(|x| Arg::from_json(x)).collect::<Result<Vec<_>>>()?;
+        let op_s = match args.remove(0) {
+            Arg::String(s) => s,
+            _ => return Err(Error::ExprOpIsNotStringError),
+        };
+        let op = match Op::get(&op_s) {
+            Some(v) => v,
+            None => return Err(Error::NoSuchOpError),
+        };
         Ok(Expr { op: op.clone(), args: args })
     }
 

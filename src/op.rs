@@ -1,11 +1,10 @@
-use std::ops::Add;
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
 use crate::rule::Arg;
 
-type Func= fn(Vec<Arg>) -> Arg;
+type Func = fn(Vec<Arg>) -> Arg;
 
 // TODO: var?
 // how to get func from func name?
@@ -54,16 +53,18 @@ impl Op {
 // fn eq<T: PartialEq<U>, U>(a: T, b: U) -> bool {
 //     a == b
 // }
+//
+// fn ne<T: PartialEq<U>, U>(a: T, b: U) -> bool {
+//     a != b
+// }
+// 
+// use std::ops::Add;
+// fn add<T: Add<U>, U>(a: T, b: U) -> T::Output {
+//     a + b
+// }
 
 // TODO:
 fn eq(args: Vec<Arg>) -> Arg {
     Arg::Bool(true)
 }
 
-fn ne<T: PartialEq<U>, U>(a: T, b: U) -> bool {
-    a != b
-}
-
-fn add<T: Add<U>, U>(a: T, b: U) -> T::Output {
-    a + b
-}
