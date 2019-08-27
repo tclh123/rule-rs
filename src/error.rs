@@ -11,7 +11,8 @@ pub enum Error {
     ContextNoSuchVarError,
     ExprVarArgNotStringError,
     FinalResultNotBoolError,
-    MatchError,
+
+    // MatchError,
 }
 
 pub type Result<T> = result::Result<T, Error>;

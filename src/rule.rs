@@ -1,7 +1,7 @@
 use std::convert::Into;
 
 use serde::Serialize;
-use serde_json::value::{to_value, Value as Json, Number};
+use serde_json::value::{to_value, Value as Json};
 use serde_json::Map;
 
 use crate::op::Op;
@@ -29,23 +29,23 @@ impl Rule {
     }
 
     pub fn matches<T: Serialize>(&self, context: &T) -> Result<bool> {
-        // self.expr.matches(&context).map(|x| x.as_bool().unwrap())
         self.expr.matches(context)?.as_bool().ok_or(Error::FinalResultNotBoolError)
         // Ok(true)
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub struct Expr {
     op: Op,
     args: Vec<Arg>,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum Arg {
     Null,
     Bool(bool),
-    Number(Number),
+    Int(i64),
+    Float(f64),
     String(String),
     Expr(Expr),
 }
@@ -64,10 +64,39 @@ impl Into<Arg> for Json {
         match self {
             Json::Null => Arg::Null,
             Json::Bool(v) => Arg::Bool(v),
-            Json::Number(v) => Arg::Number(v),
+            Json::Number(v) => { 
+                v.as_i64().map_or_else(|| Arg::Float(v.as_f64().unwrap()), |i| Arg::Int(i))
+            },
             Json::String(v) => Arg::String(v),
             Json::Array(v) => Arg::Expr(Expr::from_vec(v).unwrap()),
             Json::Object(v) => Arg::Expr(Expr::from_vec(v.values().cloned().collect()).unwrap()),
+        }
+    }
+}
+
+impl Into<bool> for Arg {
+    fn into(self) -> bool {
+        match self {
+            Arg::Null => false,
+            Arg::Bool(v) => v,
+            // TODO:
+            Arg::Int(v) => v != 0,
+            Arg::Float(v) => v != 0.0,
+            Arg::String(v) => v.is_empty(),
+            _ => false,
+        }
+    }
+}
+
+impl Into<bool> for &Arg {
+    fn into(self) -> bool {
+        match self {
+            Arg::Null => false,
+            Arg::Bool(v) => *v,
+            Arg::Int(v) => *v != 0,
+            Arg::Float(v) => *v != 0.0,
+            Arg::String(v) => v.is_empty(),
+            _ => false,
         }
     }
 }
@@ -98,7 +127,9 @@ impl Arg {
         match val {
             Json::Null => Ok(Arg::Null),
             Json::Bool(v) => Ok(Arg::Bool(v)),
-            Json::Number(v) => Ok(Arg::Number(v)),
+            Json::Number(v) => {
+                Ok(v.as_i64().map_or_else(|| Arg::Float(v.as_f64().unwrap()), |i| Arg::Int(i)))
+            },
             Json::String(v) => Ok(Arg::String(v)),
             Json::Array(v) => Ok(Arg::Expr(Expr::from_vec(v)?)),
             Json::Object(v) => Ok(Arg::Expr(Expr::from_vec(v.values().cloned().collect())?)),

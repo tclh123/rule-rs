@@ -76,3 +76,17 @@ fn rule_match_context_struct() -> Result<()>{
     assert!(Rule::new(json!(["=", "world", "hello"]))?.matches(&context)?);
     Ok(())
 }
+
+#[test]
+fn rule_match_ord() -> Result<()> {
+    let context = json!({"a": 1, "world": "hello"});
+    assert!(Rule::new(json!([">", "world", "hell"]))?.matches(&context)?);
+    assert!(Rule::new(json!([">", "a", 0]))?.matches(&context)?);
+    assert!(Rule::new(json!(["!", ["<", 1000, 234]]))?.matches(&context)?);
+    assert!(Rule::new(json!([">=", 1000, 234]))?.matches(&context)?);
+    assert!(Rule::new(json!(["!=", 1000, 234]))?.matches(&context)?);
+    assert!(Rule::new(json!(["all", 1000, 234, true]))?.matches(&context)?);
+    assert!(Rule::new(json!(["any", 1000, 0]))?.matches(&context)?);
+    assert_eq!(Rule::new(json!(["any", false, 0]))?.matches(&context)?, false);
+    Ok(())
+}
