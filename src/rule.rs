@@ -79,7 +79,6 @@ impl Into<bool> for Arg {
         match self {
             Arg::Null => false,
             Arg::Bool(v) => v,
-            // TODO:
             Arg::Int(v) => v != 0,
             Arg::Float(v) => v != 0.0,
             Arg::String(v) => v.is_empty(),
@@ -102,28 +101,28 @@ impl Into<bool> for &Arg {
 }
 
 impl Arg {
-    fn as_bool(&self) -> Option<bool> {
+    pub fn as_bool(&self) -> Option<bool> {
         match *self {
             Arg::Bool(v) => Some(v),
             _ => None,
         }
     }
 
-    fn as_str(&self) -> Option<&str> {
+    pub fn as_str(&self) -> Option<&str> {
         match *self {
             Arg::String(ref v) => Some(v),
             _ => None,
         }
     }
 
-    // fn as_string(&self) -> Option<String> {
+    // pub fn as_string(&self) -> Option<String> {
     //     match *self {
     //         Arg::String(ref v) => Some(v.to_owned()),
     //         _ => None,
     //     }
     // }
 
-    fn from_json(val: Json) -> Result<Arg> {
+    pub fn from_json(val: Json) -> Result<Arg> {
         match val {
             Json::Null => Ok(Arg::Null),
             Json::Bool(v) => Ok(Arg::Bool(v)),
@@ -143,7 +142,7 @@ impl Arg {
 }
 
 impl Expr {
-    fn new(val: Json) -> Result<Expr> {
+    pub fn new(val: Json) -> Result<Expr> {
         match val {
             Json::Array(args) => {
                 Expr::from_vec(args)
@@ -152,7 +151,7 @@ impl Expr {
         }
     }
 
-    fn from_vec(val: Vec<Json>) -> Result<Expr> {
+    pub fn from_vec(val: Vec<Json>) -> Result<Expr> {
         let mut args: Vec<Arg> = val.into_iter().map(|x| Arg::from_json(x)).collect::<Result<Vec<_>>>()?;
         let op_s = match args.remove(0) {
             Arg::String(s) => s,

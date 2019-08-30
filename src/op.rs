@@ -18,40 +18,46 @@ pub struct Op {
 // 3. add more ops
 // 4. use macro to init register ops
 
-lazy_static! {
-    static ref OPS: HashMap<&'static str, Op> = {
-        let mut map = HashMap::new();
-        map.insert("var", Op::new("var", var as Func));
-
-        map.insert("=", Op::new("=", eq as Func));
-
-        map.insert("<", Op::new("<", lt as Func));
-        map.insert("lt", Op::new("lt", lt as Func));
-
-        map.insert("<=", Op::new("<=", le as Func));
-        map.insert("le", Op::new("le", le as Func));
-
-        map.insert("!=", Op::new("!=", ne as Func));
-        map.insert("ne", Op::new("ne", ne as Func));
-
-        map.insert(">=", Op::new(">=", ge as Func));
-        map.insert("ge", Op::new("ge", ge as Func));
-
-        map.insert(">", Op::new(">", gt as Func));
-        map.insert("gt", Op::new("gt", gt as Func));
-
-        map.insert("and", Op::new("and", and as Func));
-        map.insert("all", Op::new("all", and as Func));
-
-        map.insert("or", Op::new("or", or as Func));
-        map.insert("any", Op::new("any", or as Func));
-
-        map.insert("not", Op::new("not", not as Func));
-        map.insert("!", Op::new("!", not as Func));
-
-        map
-    };
+/// Register builtin OPs.
+///
+/// # Examples
+///
+/// ```
+/// register_builtin!(
+///     "var" => var,
+///     "=" => eq,
+///     "<" => lt,
+/// )
+/// ```
+macro_rules! register_builtin {
+    ( $($alias:tt => $func:tt),* $(,)? ) => {
+        lazy_static! {
+            /// All built-in OPs registered to OPS HashMap.
+            static ref OPS: HashMap<&'static str, Op> = {
+                let mut map = HashMap::new();
+                $(
+                map.insert($alias, Op::new($alias, $func as Func));
+                map.insert(stringify!($func), Op::new(stringify!($func), $func as Func));
+                )*
+                map
+            };
+        }
+    }
 }
+
+register_builtin!(
+    "var" => var,
+    "=" => eq,
+    "<" => lt,
+    "<=" => le,
+    "!=" => ne,
+    ">=" => ge,
+    ">=" => ge,
+    ">" => gt,
+    "all" => and,
+    "any" => or,
+    "!" => not,
+);
 
 impl Op {
     pub fn new(name: &str, func: Func) -> Op {
@@ -66,27 +72,13 @@ impl Op {
     }
 }
 
-// fn eq<T: PartialEq<U>, U>(a: T, b: U) -> bool {
-//     a == b
-// }
-//
-// fn ne<T: PartialEq<U>, U>(a: T, b: U) -> bool {
-//     a != b
-// }
-// 
-// use std::ops::Add;
-// fn add<T: Add<U>, U>(a: T, b: U) -> T::Output {
-//     a + b
-// }
-
-// just a placeholder, will not be called
+/// just a placeholder, will not be called
 fn var(args: Vec<Arg>) -> Arg {
     args[0].clone()
 }
 
 fn eq(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.windows(2).all(|w| w[0] == w[1]))
-    // Arg::Bool(true)
 }
 
 fn lt(args: Vec<Arg>) -> Arg {
