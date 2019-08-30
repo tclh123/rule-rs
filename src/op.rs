@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use crate::rule::Arg;
+use crate::arg::Arg;
 
 type Func = fn(Vec<Arg>) -> Arg;
 
@@ -17,6 +17,20 @@ pub struct Op {
 // 2. custom ops register to whom? maybe just use a global static mut hashmap
 // 3. add more ops
 // 4. use macro to init register ops
+// 5. func return Result, error handling
+
+impl Op {
+    pub fn new(name: &str, func: Func) -> Op {
+        Op {
+            name: name.to_owned(),
+            func: func,
+        }
+    }
+
+    pub fn get(name: &str) -> Option<&Op> {
+        OPS.get(name)
+    }
+}
 
 /// Register builtin OPs.
 ///
@@ -59,19 +73,6 @@ register_builtin!(
     "!" => not,
 );
 
-impl Op {
-    pub fn new(name: &str, func: Func) -> Op {
-        Op {
-            name: name.to_owned(),
-            func: func,
-        }
-    }
-
-    pub fn get(name: &str) -> Option<&Op> {
-        OPS.get(name)
-    }
-}
-
 /// just a placeholder, will not be called
 fn var(args: Vec<Arg>) -> Arg {
     args[0].clone()
@@ -113,3 +114,18 @@ fn not(args: Vec<Arg>) -> Arg {
     let b: bool = args.get(0).unwrap().into();
     Arg::Bool(!b)
 }
+
+//    ('add', '+'),
+//    ('sub', '-'),
+//    ('neg', None),
+//    ('mul', '*'),
+//    ('pow', '**'),
+//    ('div', '/'),
+//    ('floordiv', '//'),
+//    ('truediv', None),
+//    ('mod', '%'),
+
+// fn add(args: Vec<Arg>) -> Arg {
+//     let b: bool = args.get(0).unwrap().into();
+//     Arg::Bool(!b)
+// }

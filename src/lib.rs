@@ -9,5 +9,6 @@ pub use self::rule::Rule;
 pub use self::error::{Error, Result};
 
 pub mod rule;
+pub mod arg;
 pub mod op;
 pub mod error;
