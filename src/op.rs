@@ -1,3 +1,4 @@
+use std::ops::Add;
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
@@ -17,7 +18,7 @@ pub struct Op {
 // 2. custom ops register to whom? maybe just use a global static mut hashmap
 // 3. add more ops
 // 4. use macro to init register ops
-// 5. func return Result, error handling
+// 5. func return Result, error handling? or not.
 
 impl Op {
     pub fn new(name: &str, func: Func) -> Op {
@@ -61,6 +62,8 @@ macro_rules! register_builtin {
 
 register_builtin!(
     "var" => var,
+
+    // logic operator
     "=" => eq,
     "<" => lt,
     "<=" => le,
@@ -68,9 +71,17 @@ register_builtin!(
     ">=" => ge,
     ">=" => ge,
     ">" => gt,
+    "&" => and,
+    "&&" => and,
     "all" => and,
+    "|" => or,
+    "||" => or,
     "any" => or,
     "!" => not,
+
+    // arithmetic operator
+    "+" => add,
+    "sum" => add,
 );
 
 /// just a placeholder, will not be called
@@ -115,6 +126,7 @@ fn not(args: Vec<Arg>) -> Arg {
     Arg::Bool(!b)
 }
 
+// TODO: add more OPs
 //    ('add', '+'),
 //    ('sub', '-'),
 //    ('neg', None),
@@ -124,8 +136,28 @@ fn not(args: Vec<Arg>) -> Arg {
 //    ('floordiv', '//'),
 //    ('truediv', None),
 //    ('mod', '%'),
+//    ('abs', None),
+//
+//    in
+//
+//    startswith
+//    endswith
+//    lower
+//    upper
+//    split
+//    match
+//    regex
+//
+//    num
+//    string
+//
+//    ('contains', None),
+//    ('onlycontains/allin', None),
+//    uniq
+//    bool/notempty
+//    empty
 
-// fn add(args: Vec<Arg>) -> Arg {
-//     let b: bool = args.get(0).unwrap().into();
-//     Arg::Bool(!b)
-// }
+fn add(args: Vec<Arg>) -> Arg {
+    let mut it = args.into_iter();
+    it.next().map(|first| it.fold(first, Add::add)).unwrap_or(Arg::Null)
+}

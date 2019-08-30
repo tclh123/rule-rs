@@ -1,4 +1,5 @@
 use std::convert::Into;
+use std::ops::{Add};
 
 use serde_json::value::{Value as Json};
 use serde_json::Map;
@@ -6,6 +7,7 @@ use serde_json::Map;
 use crate::rule::{Expr};
 use crate::error::{Error, Result};
 
+/// The argument type.
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum Arg {
     Null,
@@ -13,7 +15,77 @@ pub enum Arg {
     Int(i64),
     Float(f64),
     String(String),
+    // Array(Vec<Arg>),
     Expr(Expr),
+}
+
+impl Add for Arg {
+    type Output = Arg;
+
+    fn add(self, other: Arg) -> Arg {
+        match self {
+            Arg::Null => Arg::Int(other.into()),
+            Arg::Bool(v) => Arg::Int(v as i64 + Into::<i64>::into(other)),
+            Arg::Int(v) => Arg::Int(v + Into::<i64>::into(other)),
+            Arg::Float(v) => Arg::Float(v + Into::<f64>::into(other)),
+            Arg::String(v) => Arg::String(v + &Into::<String>::into(other)),
+            _ => Arg::Null,
+        }
+    }
+}
+
+impl<'a> Add<&'a Arg> for Arg {
+    type Output = Arg;
+
+    fn add(self, other: &'a Arg) -> Arg {
+        match self {
+            Arg::Null => Arg::Int(other.clone().into()),
+            Arg::Bool(v) => Arg::Int(v as i64 + Into::<i64>::into(other.clone())),
+            Arg::Int(v) => Arg::Int(v + Into::<i64>::into(other.clone())),
+            Arg::Float(v) => Arg::Float(v + Into::<f64>::into(other.clone())),
+            Arg::String(v) => Arg::String(v + &Into::<String>::into(other.clone())),
+            _ => Arg::Null,
+        }
+    }
+}
+
+impl Into<String> for Arg {
+    fn into(self) -> String {
+        match self {
+            Arg::Null => "".to_owned(),
+            Arg::Bool(v) => v.to_string(),
+            Arg::Int(v) => v.to_string(),
+            Arg::Float(v) => v.to_string(),
+            Arg::String(v) => v,
+            _ => "".to_owned(),
+        }
+    }
+}
+
+impl Into<i64> for Arg {
+    fn into(self) -> i64 {
+        match self {
+            Arg::Null => 0,
+            Arg::Bool(v) => v as i64,
+            Arg::Int(v) => v,
+            Arg::Float(v) => v as i64,
+            Arg::String(v) => v.len() as i64,
+            _ => 0,
+        }
+    }
+}
+
+impl Into<f64> for Arg {
+    fn into(self) -> f64 {
+        match self {
+            Arg::Null => 0.0,
+            Arg::Bool(v) => (v as i64) as f64,
+            Arg::Int(v) => v as f64,
+            Arg::Float(v) => v,
+            Arg::String(v) => v.len() as f64,
+            _ => 0.0,
+        }
+    }
 }
 
 impl Into<Option<Expr>> for Arg {
@@ -101,6 +173,7 @@ impl Arg {
         }
     }
 
+    // TODO: add Arg::Array(Vec<Arg>) variant for context var
     pub fn from_context_var(args: &Vec<Arg>, context: &Map<String, Json>) -> Result<Arg> {
         Arg::from_json(context.get(args[0].as_str().ok_or(Error::ExprVarArgNotStringError)?)
             .ok_or(Error::ContextNoSuchVarError)?.clone())
