@@ -92,7 +92,7 @@ commands:
     steps:
       - run:
           name: Install tarpaulin
-          command: cargo install tarpaulin --version <<parameters.version>>
+          command: cargo install cargo-tarpaulin --version <<parameters.version>>
 
   build:
     description: Build all targets of a Rust crate.
@@ -115,6 +115,7 @@ commands:
           keys:
             - v1-cargo-cache-{{arch}}-{{checksum "rust-version"}}-tarpaulin-<<parameters.tarpaulin_version>>-<<parameters.release>>-{{checksum "Cargo.lock"}}
             - v1-cargo-cache-{{arch}}-{{checksum "rust-version"}}-tarpaulin-<<parameters.tarpaulin_version>>-
+            - v1-cargo-cache-{{arch}}-{{checksum "rust-version"}}-
       - run:
           name: Build all targets
           command: cargo build --all --all-targets<<#parameters.release>> --release<</parameters.release>>
