@@ -7,6 +7,7 @@ use crate::arg::Arg;
 
 type Func = fn(Vec<Arg>) -> Arg;
 
+/// The Operator type, mainly contains a function pointer.
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub struct Op {
     pub name: String,
@@ -21,6 +22,7 @@ pub struct Op {
 // 5. func return Result, error handling? or not.
 
 impl Op {
+    /// Constructs a new Operator.
     pub fn new(name: &str, func: Func) -> Op {
         Op {
             name: name.to_owned(),
@@ -28,6 +30,7 @@ impl Op {
         }
     }
 
+    /// Get an Operator by name, returns an Option, `None` if not exists.
     pub fn get(name: &str) -> Option<&Op> {
         OPS.get(name)
     }
@@ -85,43 +88,43 @@ register_builtin!(
 );
 
 /// just a placeholder, will not be called
-fn var(args: Vec<Arg>) -> Arg {
+pub fn var(args: Vec<Arg>) -> Arg {
     args[0].clone()
 }
 
-fn eq(args: Vec<Arg>) -> Arg {
+pub fn eq(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.windows(2).all(|w| w[0] == w[1]))
 }
 
-fn lt(args: Vec<Arg>) -> Arg {
+pub fn lt(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.windows(2).all(|w| w[0] < w[1]))
 }
 
-fn le(args: Vec<Arg>) -> Arg {
+pub fn le(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.windows(2).all(|w| w[0] <= w[1]))
 }
 
-fn ne(args: Vec<Arg>) -> Arg {
+pub fn ne(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.windows(2).all(|w| w[0] != w[1]))
 }
 
-fn ge(args: Vec<Arg>) -> Arg {
+pub fn ge(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.windows(2).all(|w| w[0] >= w[1]))
 }
 
-fn gt(args: Vec<Arg>) -> Arg {
+pub fn gt(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.windows(2).all(|w| w[0] > w[1]))
 }
 
-fn and(args: Vec<Arg>) -> Arg {
+pub fn and(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.iter().all(|v| v.into()))
 }
 
-fn or(args: Vec<Arg>) -> Arg {
+pub fn or(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.iter().any(|v| v.into()))
 }
 
-fn not(args: Vec<Arg>) -> Arg {
+pub fn not(args: Vec<Arg>) -> Arg {
     let b: bool = args.get(0).unwrap().into();
     Arg::Bool(!b)
 }
@@ -157,7 +160,7 @@ fn not(args: Vec<Arg>) -> Arg {
 //    bool/notempty
 //    empty
 
-fn add(args: Vec<Arg>) -> Arg {
+pub fn add(args: Vec<Arg>) -> Arg {
     let mut it = args.into_iter();
     it.next().map(|first| it.fold(first, Add::add)).unwrap_or(Arg::Null)
 }

@@ -1,5 +1,3 @@
-//! # Rule
-//! 
 //! A rule engine written in rust.
 //! There's also a [python fork](https://github.com/tclh123/rule).
 //! 
@@ -10,7 +8,7 @@
 //! For writing convenience, the first argument will be tried to resolve as the context parameter.
 //! Or, you can just use the special `var` operator to indicate the context parameter.
 //! 
-//! ## Usage
+//! # Usage
 //! 
 //! ```rust
 //! use rule::{Rule, Result, json};

@@ -7,7 +7,7 @@ use serde_json::Map;
 use crate::rule::{Expr};
 use crate::error::{Error, Result};
 
-/// The argument type.
+/// The argument type. Each argument can be a json primitive type or a `Expr`.
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum Arg {
     Null,
@@ -139,6 +139,7 @@ impl Into<bool> for &Arg {
 }
 
 impl Arg {
+    /// If the `Arg` is a bool, returns the associated bool. Returns None otherwise.
     pub fn as_bool(&self) -> Option<bool> {
         match *self {
             Arg::Bool(v) => Some(v),
@@ -146,19 +147,13 @@ impl Arg {
         }
     }
 
+    /// If the `Arg` is a String, returns the associated String. Returns None otherwise.
     pub fn as_str(&self) -> Option<&str> {
         match *self {
             Arg::String(ref v) => Some(v),
             _ => None,
         }
     }
-
-    // pub fn as_string(&self) -> Option<String> {
-    //     match *self {
-    //         Arg::String(ref v) => Some(v.to_owned()),
-    //         _ => None,
-    //     }
-    // }
 
     pub fn from_json(val: Json) -> Result<Arg> {
         match val {
