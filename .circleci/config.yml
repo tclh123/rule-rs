@@ -126,8 +126,11 @@ jobs:
     executor: rust
     steps:
       # check out the code in the project directory
-      - checkout
+      - checkout:
+          name: Checkout
       # build with cache
-      - build
-      - test
+      - build:
+          name: Build
+      - test:
+          name: Run tests
           nocapture: true
