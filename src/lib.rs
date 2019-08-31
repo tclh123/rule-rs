@@ -11,7 +11,10 @@
 //! # Usage
 //! 
 //! ```rust
-//! use rule::{Rule, Result, json};
+//! #[macro_use]
+//! extern crate rule;
+//! 
+//! use rule::{Rule, Result};
 //! 
 //! fn main() -> Result<()> {
 //!     let context = json!({"a": 1, "world": "hello"});
@@ -21,8 +24,7 @@
 //!     assert!(Rule::from_str(r#"["=", ["var", "a"], 1]"#)?.matches(&context)?);
 //!     assert!(Rule::from_value(["=", "world", "hello"])?.matches(&context)?);
 //! 
-//!     // TODO:
-//!     // assert!(rule!(["=", "a", 1]).matches(&context)?);
+//!     assert!(rule!["=", "a", 1]?.matches(&context)?);
 //! 
 //!     Ok(())
 //! }
@@ -42,3 +44,4 @@ pub mod rule;
 pub mod arg;
 pub mod op;
 pub mod error;
+pub mod macros;

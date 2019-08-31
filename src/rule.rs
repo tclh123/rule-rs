@@ -7,6 +7,7 @@ use crate::error::{Error, Result};
 use crate::arg::Arg;
 
 /// The Rule type, contains an `Expr`.
+#[derive(Clone, Debug, PartialEq)]
 pub struct Rule {
     expr: Expr,
 }

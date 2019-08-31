@@ -1,8 +1,9 @@
+#[macro_use]
 extern crate rule;
 
 use serde::Serialize;
 
-use rule::{Rule, Result, json};
+use rule::{Rule, Result};
 
 // #[cfg(test)]
 // mod tests {
@@ -15,6 +16,11 @@ use rule::{Rule, Result, json};
 #[test]
 fn rule_new() {
     let _rule = Rule::new(json!(["=", "a", 1])).unwrap();
+}
+
+#[test]
+fn rule_new_macro() {
+    let _rule = rule!["=", "a", 1].unwrap();
 }
 
 #[test]
@@ -39,6 +45,7 @@ fn rule_match() {
 fn rule_match_handle_error() -> Result<()> {
     let context = json!({"a": 1, "world": "hello"});
     assert!(Rule::new(json!(["=", "a", 1]))?.matches(&context)?);
+    assert!(rule!["=", "a", 1]?.matches(&context)?);
     Ok(())
 }
 

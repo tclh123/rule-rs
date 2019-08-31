@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 
 use crate::arg::Arg;
 
-type Func = fn(Vec<Arg>) -> Arg;
+pub type Func = fn(Vec<Arg>) -> Arg;
 
 /// The Operator type, mainly contains a function pointer.
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
@@ -60,7 +60,7 @@ macro_rules! register_builtin {
                 map
             };
         }
-    }
+    };
 }
 
 register_builtin!(
