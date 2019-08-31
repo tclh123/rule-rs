@@ -1,5 +1,6 @@
 # Rule
 
+[![circle-ci](https://img.shields.io/circleci/build/gh/tclh123/rule-rs?token=1a76063919507b8ff950b4e58ae3a12eee3a784a)](https://circleci.com/gh/tclh123/rule-rs)
 [![crates.io](https://img.shields.io/crates/v/rule)](https://crates.io/crates/rule)
 [![license](https://img.shields.io/crates/l/rule)](http://tclh123.mit-license.org/)
 [![docs.rs](https://img.shields.io/badge/docs.rs-latest-brightgreen)](https://docs.rs/rule)
