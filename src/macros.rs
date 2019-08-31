@@ -1,6 +1,8 @@
 /// Construct a `Resule<rule::Rule, rule::Error>` from a JSON array literal.
 ///
 /// ```
+/// use ::rule::rule;
+///
 /// let r = rule!["=", "a", 1].unwrap();
 /// ```
 #[macro_export(local_inner_macros)]

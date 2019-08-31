@@ -1,5 +1,5 @@
 use std::convert::Into;
-use std::ops::{Add};
+use std::ops::{Add, Sub, Neg, Mul, Div, Rem};
 
 use serde_json::value::{Value as Json};
 use serde_json::Map;
@@ -49,6 +49,96 @@ impl<'a> Add<&'a Arg> for Arg {
     }
 }
 
+impl Sub for Arg {
+    type Output = Arg;
+
+    fn sub(self, other: Arg) -> Arg {
+        match self {
+            Arg::Null => Arg::Int(0i64 - Into::<i64>::into(other)),
+            Arg::Bool(v) => Arg::Int(v as i64 - Into::<i64>::into(other)),
+            Arg::Int(v) => Arg::Int(v - Into::<i64>::into(other)),
+            Arg::Float(v) => Arg::Float(v - Into::<f64>::into(other)),
+            Arg::String(ref _v) => Arg::Int(Into::<i64>::into(self) - Into::<i64>::into(other)),
+            _ => Arg::Null,
+        }
+    }
+}
+
+impl Neg for Arg {
+    type Output = Arg;
+
+    fn neg(self) -> Arg {
+        match self {
+            Arg::Null => Arg::Int(0),
+            Arg::Bool(v) => Arg::Int(-(v as i64)),
+            Arg::Int(v) => Arg::Int(-v),
+            Arg::Float(v) => Arg::Float(-v),
+            Arg::String(ref _v) => Arg::Int(-Into::<i64>::into(self)),
+            _ => Arg::Null,
+        }
+    }
+}
+
+impl<'a> Neg for &'a Arg {
+    type Output = Arg;
+
+    fn neg(self) -> Arg {
+        match self {
+            Arg::Null => Arg::Int(0),
+            Arg::Bool(v) => Arg::Int(-(*v as i64)),
+            Arg::Int(v) => Arg::Int(-v),
+            Arg::Float(v) => Arg::Float(-v),
+            Arg::String(ref _v) => Arg::Int(-Into::<i64>::into(self.clone())),
+            _ => Arg::Null,
+        }
+    }
+}
+
+impl Mul for Arg {
+    type Output = Arg;
+
+    fn mul(self, rhs: Arg) -> Arg {
+        match self {
+            Arg::Null => Arg::Int(0),
+            Arg::Bool(v) => Arg::Int((v as i64) * Into::<i64>::into(rhs)),
+            Arg::Int(v) => Arg::Int(v * Into::<i64>::into(rhs)),
+            Arg::Float(v) => Arg::Float(v * Into::<f64>::into(rhs)),
+            Arg::String(ref _v) => Arg::Int(Into::<i64>::into(self) * Into::<i64>::into(rhs)),
+            _ => Arg::Null,
+        }
+    }
+}
+
+impl Div for Arg {
+    type Output = Arg;
+
+    fn div(self, rhs: Arg) -> Arg {
+        match self {
+            Arg::Null => Arg::Int(0),
+            Arg::Bool(v) => Arg::Int((v as i64) / Into::<i64>::into(rhs)),
+            Arg::Int(v) => Arg::Int(v / Into::<i64>::into(rhs)),
+            Arg::Float(v) => Arg::Float(v / Into::<f64>::into(rhs)),
+            Arg::String(ref _v) => Arg::Int(Into::<i64>::into(self) / Into::<i64>::into(rhs)),
+            _ => Arg::Null,
+        }
+    }
+}
+
+impl Rem for Arg {
+    type Output = Arg;
+
+    fn rem(self, rhs: Arg) -> Arg {
+        match self {
+            Arg::Null => Arg::Int(0),
+            Arg::Bool(v) => Arg::Int((v as i64) % Into::<i64>::into(rhs)),
+            Arg::Int(v) => Arg::Int(v % Into::<i64>::into(rhs)),
+            Arg::Float(v) => Arg::Float(v % Into::<f64>::into(rhs)),
+            Arg::String(ref _v) => Arg::Int(Into::<i64>::into(self) % Into::<i64>::into(rhs)),
+            _ => Arg::Null,
+        }
+    }
+}
+
 impl Into<String> for Arg {
     fn into(self) -> String {
         match self {
@@ -69,7 +159,22 @@ impl Into<i64> for Arg {
             Arg::Bool(v) => v as i64,
             Arg::Int(v) => v,
             Arg::Float(v) => v as i64,
-            Arg::String(v) => v.len() as i64,
+            // kinda werid? maybe parse to int
+            Arg::String(v) => v.parse().unwrap_or(0i64),
+            _ => 0,
+        }
+    }
+}
+
+impl<'a> Into<i64> for &'a Arg {
+    fn into(self) -> i64 {
+        match self {
+            Arg::Null => 0,
+            Arg::Bool(v) => *v as i64,
+            Arg::Int(v) => *v,
+            Arg::Float(v) => *v as i64,
+            // kinda werid? maybe parse to int
+            Arg::String(v) => v.parse().unwrap_or(0i64),
             _ => 0,
         }
     }
@@ -82,7 +187,7 @@ impl Into<f64> for Arg {
             Arg::Bool(v) => (v as i64) as f64,
             Arg::Int(v) => v as f64,
             Arg::Float(v) => v,
-            Arg::String(v) => v.len() as f64,
+            Arg::String(v) => v.parse().unwrap_or(0.0),
             _ => 0.0,
         }
     }

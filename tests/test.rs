@@ -103,5 +103,12 @@ fn rule_match_arithmetic_op() -> Result<()> {
     let context = json!({"a": 1, "world": "hello"});
     assert!(Rule::new(json!(["=", ["+", "world", " world"], "hello world"]))?.matches(&context)?);
     assert!(Rule::new(json!(["=", ["+", "a", 100], 101]))?.matches(&context)?);
+    assert!(Rule::new(json!(["=", ["-", "a", 100], -99]))?.matches(&context)?);
+    assert!(Rule::new(json!(["=", ["-", "10", 1], 9]))?.matches(&context)?);
+    assert!(Rule::new(json!(["=", ["neg", "10"], -10]))?.matches(&context)?);
+    assert!(Rule::new(json!(["=", ["*", "a", 10, -2], -20]))?.matches(&context)?);
+    assert!(Rule::new(json!(["=", ["/", 100, ["var", "a"], 5], 20]))?.matches(&context)?);
+    assert!(Rule::new(json!(["=", ["%", 100, 3], 1]))?.matches(&context)?);
+    assert!(Rule::new(json!(["=", ["abs", -123], 123]))?.matches(&json!({}))?);
     Ok(())
 }

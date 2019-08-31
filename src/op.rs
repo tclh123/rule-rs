@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::ops::{Add, Sub, Mul, Div, Rem};
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
@@ -15,10 +15,10 @@ pub struct Op {
 }
 
 // TODO:
-// 1. static hashmap -> built-in ops
+// 1. static hashmap -> built-in ops [done]
 // 2. custom ops register to whom? maybe just use a global static mut hashmap
-// 3. add more ops
-// 4. use macro to init register ops
+// 3. add more ops [ing]
+// 4. use macro to init register ops [done]
 // 5. func return Result, error handling? or not.
 
 impl Op {
@@ -85,6 +85,14 @@ register_builtin!(
     // arithmetic operator
     "+" => add,
     "sum" => add,
+    "-" => sub,
+    "minus" => sub,
+    "neg" => neg,
+    "*" => mul,
+    "/" => div,
+    "%" => rem,
+    "mod" => rem,
+    "abs" => abs,
 );
 
 /// just a placeholder, will not be called
@@ -125,22 +133,48 @@ pub fn or(args: Vec<Arg>) -> Arg {
 }
 
 pub fn not(args: Vec<Arg>) -> Arg {
-    let b: bool = args.get(0).unwrap().into();
+    let b: bool = args.get(0).unwrap_or(&Arg::Null).into();
     Arg::Bool(!b)
 }
 
+pub fn add(args: Vec<Arg>) -> Arg {
+    let mut it = args.into_iter();
+    it.next().map(|first| it.fold(first, Add::add)).unwrap_or(Arg::Null)
+}
+
+pub fn sub(args: Vec<Arg>) -> Arg {
+    let mut it = args.into_iter();
+    it.next().map(|first| it.fold(first, Sub::sub)).unwrap_or(Arg::Null)
+}
+
+pub fn neg(args: Vec<Arg>) -> Arg {
+    -args.get(0).unwrap_or(&Arg::Null)
+}
+
+pub fn mul(args: Vec<Arg>) -> Arg {
+    let mut it = args.into_iter();
+    it.next().map(|first| it.fold(first, Mul::mul)).unwrap_or(Arg::Null)
+}
+
+pub fn div(args: Vec<Arg>) -> Arg {
+    let mut it = args.into_iter();
+    it.next().map(|first| it.fold(first, Div::div)).unwrap_or(Arg::Null)
+}
+
+/// The remainder operator %.
+/// Aliases: %, rem, mod
+pub fn rem(args: Vec<Arg>) -> Arg {
+    let mut it = args.into_iter();
+    it.next().map(|first| it.fold(first, Rem::rem)).unwrap_or(Arg::Null)
+}
+
+/// Computes the absolute value of arg[0].
+pub fn abs(args: Vec<Arg>) -> Arg {
+    let int: i64 = args.get(0).unwrap_or(&Arg::Null).into();
+    Arg::Int(int.abs())
+}
+
 // TODO: add more OPs
-//    ('add', '+'),
-//    ('sub', '-'),
-//    ('neg', None),
-//    ('mul', '*'),
-//    ('pow', '**'),
-//    ('div', '/'),
-//    ('floordiv', '//'),
-//    ('truediv', None),
-//    ('mod', '%'),
-//    ('abs', None),
-//
 //    in
 //
 //    startswith
@@ -159,8 +193,3 @@ pub fn not(args: Vec<Arg>) -> Arg {
 //    uniq
 //    bool/notempty
 //    empty
-
-pub fn add(args: Vec<Arg>) -> Arg {
-    let mut it = args.into_iter();
-    it.next().map(|first| it.fold(first, Add::add)).unwrap_or(Arg::Null)
-}
