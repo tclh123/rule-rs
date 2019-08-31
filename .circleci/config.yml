@@ -134,6 +134,14 @@ jobs:
       - build
       - test:
           nocapture: true
+
+  coverage:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Coverage
+          command: docker run --security-opt seccomp=unconfined -v "${PWD}:/volume" xd009642/tarpaulin
       - codecov/upload:
           token: 37ecc6ec-3f78-4e33-a52e-1764571c6253
 
@@ -142,4 +150,5 @@ workflows:
   main:
     jobs:
       - test
+      - coverage
 
