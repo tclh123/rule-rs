@@ -1,4 +1,8 @@
-
+/// Construct a `Resule<rule::Rule, rule::Error>` from a JSON array literal.
+///
+/// ```
+/// let r = rule!["=", "a", 1].unwrap();
+/// ```
 #[macro_export(local_inner_macros)]
 macro_rules! rule {
     ( [$($e:tt)*] ) => {
