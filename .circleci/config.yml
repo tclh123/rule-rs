@@ -82,6 +82,18 @@ commands:
               echo Skipping rustfmt
             fi
 
+  install_tarpaulin:
+    description: Install cargo tarpaulin for code coverage.
+    parameters:
+      version:
+        description: tarpaulin version
+        type: string
+        default: "0.8.6"
+    steps:
+      - run:
+          name: Install tarpaulin
+          command: cargo install tarpaulin --version <<parameters.version>>
+
   build:
     description: Build all targets of a Rust crate.
     parameters:
@@ -89,6 +101,10 @@ commands:
         description: By default, the crate is build in debug mode without optimizations. Set this to true to compile in release mode.
         type: boolean
         default: false
+      tarpaulin_version:
+        description: tarpaulin version
+        type: string
+        default: "0.8.6"
     steps:
       - run:
           name: Calculate dependencies
@@ -97,16 +113,19 @@ commands:
             test -e Cargo.lock || cargo generate-lockfile
       - restore_cache:
           keys:
-            - v1-cargo-cache-{{arch}}-{{checksum "rust-version"}}-<<parameters.release>>-{{checksum "Cargo.lock"}}
+            - v1-cargo-cache-{{arch}}-{{checksum "rust-version"}}-tarpaulin-<<parameters.tarpaulin_version>>-<<parameters.release>>-{{checksum "Cargo.lock"}}
+            - v1-cargo-cache-{{arch}}-{{checksum "rust-version"}}-tarpaulin-<<parameters.tarpaulin_version>>-
       - run:
           name: Build all targets
           command: cargo build --all --all-targets<<#parameters.release>> --release<</parameters.release>>
+      - install_tarpaulin:
+          version: <<parameters.tarpaulin_version>>
       - save_cache:
           # List of directories which should be added to the cache
           paths:
             - /usr/local/cargo/registry
             - ./target
-          key: v1-cargo-cache-{{arch}}-{{checksum "rust-version"}}-<<parameters.release>>-{{checksum "Cargo.lock"}}
+          key: v1-cargo-cache-{{arch}}-{{checksum "rust-version"}}-tarpaulin-<<parameters.tarpaulin_version>>-<<parameters.release>>-{{checksum "Cargo.lock"}}
 
   test:
     description: Run all tests of a Rust crate. Make sure to build first.
@@ -134,21 +153,25 @@ jobs:
       - build
       - test:
           nocapture: true
-
-  coverage:
-    machine: true
-    steps:
-      - checkout
       - run:
           name: Coverage
-          command: docker run --security-opt seccomp=unconfined -v "${PWD}:/volume" xd009642/tarpaulin
+          command: cargo tarpaulin --out Xml
       - codecov/upload:
           token: 37ecc6ec-3f78-4e33-a52e-1764571c6253
+
+#   coverage:
+#     machine: true
+#     steps:
+#       - checkout
+#       - run:
+#           name: Coverage
+#           command: docker run --security-opt seccomp=unconfined -v "${PWD}:/volume" xd009642/tarpaulin
+#       - codecov/upload:
+#           token: 37ecc6ec-3f78-4e33-a52e-1764571c6253
 
 workflows:
   version: 2
   main:
     jobs:
       - test
-      - coverage
 
