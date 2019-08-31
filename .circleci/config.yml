@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@1.0.5
+
 executors:
   rust:
     description: Executor environment for building Rust crates.
@@ -131,6 +134,8 @@ jobs:
       - build
       - test:
           nocapture: true
+      - codecov/upload:
+          token: 37ecc6ec-3f78-4e33-a52e-1764571c6253
 
 workflows:
   version: 2

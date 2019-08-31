@@ -4,6 +4,7 @@
 [![crates.io](https://img.shields.io/crates/v/rule)](https://crates.io/crates/rule)
 [![license](https://img.shields.io/crates/l/rule)](http://tclh123.mit-license.org/)
 [![docs.rs](https://img.shields.io/badge/docs.rs-latest-brightgreen)](https://docs.rs/rule)
+[![codecov](https://codecov.io/gh/tclh123/rule-rs/branch/master/graph/badge.svg?token=FbUPeNSJt0)](https://codecov.io/gh/tclh123/rule-rs)
 
 A rule engine written in rust.
 There's also a [python fork](https://github.com/tclh123/rule).
