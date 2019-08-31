@@ -122,15 +122,12 @@ commands:
           command: cargo test --all<<#parameters.release>> --release<</parameters.release>><<#parameters.nocapture>> -- --nocapture<</parameters.nocapture>>
 
 jobs:
-  build:
+  test:
     executor: rust
     steps:
       # check out the code in the project directory
-      - checkout:
-          name: Checkout
+      - checkout
       # build with cache
-      - build:
-          name: Build
+      - build
       - test:
-          name: Run tests
           nocapture: true
