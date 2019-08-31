@@ -1,5 +1,9 @@
 # Rule
 
+[![crates.io](https://img.shields.io/crates/v/rule)](https://crates.io/crates/rule)
+[![license](https://img.shields.io/crates/l/rule)](http://tclh123.mit-license.org/)
+[![docs.rs](https://img.shields.io/badge/docs.rs-latest-brightgreen)](https://docs.rs/rule)
+
 A rule engine written in rust.
 There's also a [python fork](https://github.com/tclh123/rule).
 
