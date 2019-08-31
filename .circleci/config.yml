@@ -131,3 +131,9 @@ jobs:
       - build
       - test:
           nocapture: true
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - test
