@@ -93,6 +93,11 @@ register_builtin!(
     "%" => rem,
     "mod" => rem,
     "abs" => abs,
+
+    // collection operator
+    "in" => r#in,
+    "startswith" => startswith,
+    "endswith" => endswith,
 );
 
 /// just a placeholder, will not be called
@@ -174,11 +179,50 @@ pub fn abs(args: Vec<Arg>) -> Arg {
     Arg::Int(int.abs())
 }
 
+/// Return true if args[0] in args[1..].
+/// e.g. rule json string: ["in", 1, 1, 2, 3]
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["in", 1, 1, 2, 3].unwrap().matches(&json!({})).unwrap());
+/// ```
+pub fn r#in(args: Vec<Arg>) -> Arg {
+    Arg::Bool(args[1..].contains(&args[0]))
+}
+
+/// Return true if args[0] starts with args[1]
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["startswith", "hello", "he"].unwrap().matches(&json!({})).unwrap());
+/// assert!(rule!["startswith", "arr", "foo", "bar"].unwrap().matches(&json!({"arr": ["foo", "bar", "baz"]})).unwrap());
+/// ```
+pub fn startswith(args: Vec<Arg>) -> Arg {
+    let ret = match &args[0] {
+        Arg::String(s) => Arg::Bool((&s).starts_with(&args[1].to_string())),
+        Arg::Array(a) => Arg::Bool(a.starts_with(&args[1..])),
+        _ => Arg::Bool(false),
+    };
+    ret
+}
+
+/// Return true if args[0] ends with args[1]
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["endswith", "hello", "lo"].unwrap().matches(&json!({})).unwrap());
+/// assert!(rule!["endswith", "arr", "bar", "baz"].unwrap().matches(&json!({"arr": ["foo", "bar", "baz"]})).unwrap());
+/// ```
+pub fn endswith(args: Vec<Arg>) -> Arg {
+    let ret = match &args[0] {
+        Arg::String(s) => Arg::Bool((&s).ends_with(&args[1].to_string())),
+        Arg::Array(a) => Arg::Bool(a.ends_with(&args[1..])),
+        _ => Arg::Bool(false),
+    };
+    ret
+}
+
 // TODO: add more OPs
-//    in
 //
-//    startswith
-//    endswith
 //    lower
 //    upper
 //    split

@@ -19,12 +19,20 @@
 //! fn main() -> Result<()> {
 //!     let context = json!({"a": 1, "world": "hello"});
 //! 
+//!     // match the context with rules
 //!     assert!(Rule::new(json!(["=", "a", 1]))?.matches(&context)?);
 //!     assert!(Rule::new(json!(["=", ["var", "a"], 1]))?.matches(&context)?);
 //!     assert!(Rule::from_str(r#"["=", ["var", "a"], 1]"#)?.matches(&context)?);
 //!     assert!(Rule::from_value(["=", "world", "hello"])?.matches(&context)?);
 //! 
+//!     // rule! macro
 //!     assert!(rule!["=", "a", 1]?.matches(&context)?);
+//! 
+//!     // collection operators
+//!     assert!(rule!["in", 1, 1, 2, 3]?.matches(&json!({}))?);
+//!     assert!(rule!["startswith", "hello", "he"]?.matches(&json!({}))?);
+//!     assert!(rule!["startswith", "arr", "foo", "bar"]?.matches(&json!({"arr": ["foo", "bar", "baz"]}))?);
+//!     assert!(rule!["endswith", "arr", "bar", "baz"]?.matches(&json!({"arr": ["foo", "bar", "baz"]}))?);
 //! 
 //!     Ok(())
 //! }

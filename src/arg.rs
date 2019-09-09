@@ -1,3 +1,4 @@
+use std::fmt;
 use std::convert::Into;
 use std::ops::{Add, Sub, Neg, Mul, Div, Rem};
 
@@ -15,7 +16,7 @@ pub enum Arg {
     Int(i64),
     Float(f64),
     String(String),
-    // Array(Vec<Arg>),
+    Array(Vec<Arg>),
     Expr(Expr),
 }
 
@@ -152,6 +153,26 @@ impl Into<String> for Arg {
     }
 }
 
+// should always prefer implementing From over Into
+impl<'a> From<&'a Arg> for String {
+    fn from(arg: &'a Arg) -> Self {
+        match arg {
+            Arg::Null => "".to_owned(),
+            Arg::Bool(v) => v.to_string(),
+            Arg::Int(v) => v.to_string(),
+            Arg::Float(v) => v.to_string(),
+            Arg::String(v) => v.to_string(),
+            _ => "".to_owned(),
+        }
+    }
+}
+
+impl fmt::Display for Arg {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", String::from(self))
+    }
+}
+
 impl Into<i64> for Arg {
     fn into(self) -> i64 {
         match self {
@@ -260,6 +281,7 @@ impl Arg {
         }
     }
 
+    // Json::Array => Arg::Expr
     pub fn from_json(val: Json) -> Result<Arg> {
         match val {
             Json::Null => Ok(Arg::Null),
@@ -273,9 +295,23 @@ impl Arg {
         }
     }
 
-    // TODO: add Arg::Array(Vec<Arg>) variant for context var
+    // Json::Array => Arg::Array
+    pub fn from_json_context_var(val: Json) -> Result<Arg> {
+        // how to reuse partial match content with from_json?
+        match val {
+            Json::Null => Ok(Arg::Null),
+            Json::Bool(v) => Ok(Arg::Bool(v)),
+            Json::Number(v) => {
+                Ok(v.as_i64().map_or_else(|| Arg::Float(v.as_f64().unwrap()), |i| Arg::Int(i)))
+            },
+            Json::String(v) => Ok(Arg::String(v)),
+            Json::Array(v) => Ok(Arg::Array(v.into_iter().map(|v| Self::from_json_context_var(v)).collect::<Result<Vec<_>>>()?)),
+            Json::Object(v) => Self::from_json_context_var(v.values().cloned().collect()),
+        }
+    }
+
     pub fn from_context_var(args: &Vec<Arg>, context: &Map<String, Json>) -> Result<Arg> {
-        Arg::from_json(context.get(args[0].as_str().ok_or(Error::ExprVarArgNotStringError)?)
+        Arg::from_json_context_var(context.get(args[0].as_str().ok_or(Error::ExprVarArgNotStringError)?)
             .ok_or(Error::ContextNoSuchVarError)?.clone())
     }
 }
