@@ -98,6 +98,12 @@ register_builtin!(
     "in" => r#in,
     "startswith" => startswith,
     "endswith" => endswith,
+    "split" => split,
+    "join" => join,
+
+    // string operator
+    "lower" => lower,
+    "upper" => upper,
 );
 
 /// just a placeholder, will not be called
@@ -221,11 +227,52 @@ pub fn endswith(args: Vec<Arg>) -> Arg {
     ret
 }
 
+/// Convert upper case letters to lower case.
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["=", ["lower", "Hi"], "hi"].unwrap().matches(&json!({})).unwrap());
+/// ```
+pub fn lower(args: Vec<Arg>) -> Arg {
+    Arg::String(String::from(&args[0]).to_lowercase())
+}
+
+/// Convert lower case letters to upper case.
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["=", ["upper", "Hi"], "HI"].unwrap().matches(&json!({})).unwrap());
+/// ```
+pub fn upper(args: Vec<Arg>) -> Arg {
+    Arg::String(String::from(&args[0]).to_uppercase())
+}
+
+/// Split strings using a seperator.
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["startswith", ["split", "apple,pear", ","], "apple"].unwrap().matches(&json!({})).unwrap());
+/// ```
+pub fn split(args: Vec<Arg>) -> Arg {
+    let s = &String::from(&args[0]);
+    let sep = &String::from(&args[1]);
+    Arg::Array(s.split(sep).map(|x| Arg::String(x.to_owned())).collect())
+}
+
+/// Concatenate strings with a seperator.
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["=", ["join", " ", "hello", "world"], "hello world"].unwrap().matches(&json!({})).unwrap());
+/// ```
+pub fn join(args: Vec<Arg>) -> Arg {
+    let mut it = args.into_iter();
+    let sep = &String::from(&it.nth(0).unwrap_or(Arg::String("".to_owned())));
+    Arg::String(it.map(|x| String::from(&x)).collect::<Vec<String>>().join(sep))
+}
+
 // TODO: add more OPs
 //
-//    lower
-//    upper
-//    split
 //    match
 //    regex
 //

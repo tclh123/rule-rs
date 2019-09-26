@@ -113,12 +113,20 @@ fn rule_match_arithmetic_op() -> Result<()> {
     Ok(())
 }
 
-
 #[test]
 fn rule_match_collection_op() -> Result<()> {
     assert!(rule!["in", 1, 1, 2, 3]?.matches(&json!({}))?);
     assert!(rule!["startswith", "hello", "he"]?.matches(&json!({}))?);
     assert!(rule!["startswith", "arr", "foo", "bar"]?.matches(&json!({"arr": ["foo", "bar", "baz"]}))?);
     assert!(rule!["endswith", "arr", "bar", "baz"]?.matches(&json!({"arr": ["foo", "bar", "baz"]}))?);
+    assert!(rule!["startswith", ["split", "apple,pear", ","], "apple"]?.matches(&json!({}))?);
+    assert!(rule!["=", ["join", " ", "hello", "world"], "hello world"]?.matches(&json!({}))?);
+    Ok(())
+}
+
+#[test]
+fn rule_match_string_op() -> Result<()> {
+    assert!(rule!["=", ["lower", "Hi"], "hi"]?.matches(&json!({}))?);
+    assert!(rule!["=", ["upper", "Hi"], "HI"]?.matches(&json!({}))?);
     Ok(())
 }
