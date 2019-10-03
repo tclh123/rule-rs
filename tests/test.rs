@@ -128,5 +128,7 @@ fn rule_match_collection_op() -> Result<()> {
 fn rule_match_string_op() -> Result<()> {
     assert!(rule!["=", ["lower", "Hi"], "hi"]?.matches(&json!({}))?);
     assert!(rule!["=", ["upper", "Hi"], "HI"]?.matches(&json!({}))?);
+    assert!(rule!["match", "hello", "he*"]?.matches(&json!({}))?);
+    assert!(rule!["regex", "hello", "^he[l-o]{3}$"]?.matches(&json!({}))?);
     Ok(())
 }

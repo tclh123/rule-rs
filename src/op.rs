@@ -104,6 +104,8 @@ register_builtin!(
     // string operator
     "lower" => lower,
     "upper" => upper,
+    "match" => r#match,
+    "regex" => regex,
 );
 
 /// just a placeholder, will not be called
@@ -271,10 +273,37 @@ pub fn join(args: Vec<Arg>) -> Arg {
     Arg::String(it.map(|x| String::from(&x)).collect::<Vec<String>>().join(sep))
 }
 
+/// Match string using an Unix shell style pattern.
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["match", "hello", "he*"].unwrap().matches(&json!({})).unwrap());
+/// ```
+pub fn r#match(args: Vec<Arg>) -> Arg {
+    match glob::Pattern::new(&String::from(&args[1])) {
+        Ok(patt) => {
+            Arg::Bool(patt.matches(&String::from(&args[0])))
+        },
+        Err(_) => Arg::Bool(false),
+    }
+}
+
+/// Match strings using regular expressions.
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["regex", "hello", "^he[l-o]*$"].unwrap().matches(&json!({})).unwrap());
+/// ```
+pub fn regex(args: Vec<Arg>) -> Arg {
+    match regex::Regex::new(&String::from(&args[1])) {
+        Ok(re) => {
+            Arg::Bool(re.is_match(&String::from(&args[0])))
+        },
+        Err(_) => Arg::Bool(false),
+    }
+}
+
 // TODO: add more OPs
-//
-//    match
-//    regex
 //
 //    num
 //    string
