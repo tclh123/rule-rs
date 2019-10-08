@@ -106,6 +106,10 @@ register_builtin!(
     "upper" => upper,
     "match" => r#match,
     "regex" => regex,
+
+    // casting operator
+    "num" => num,
+    "string" => string,
 );
 
 /// just a placeholder, will not be called
@@ -117,6 +121,16 @@ pub fn eq(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.windows(2).all(|w| w[0] == w[1]))
 }
 
+/// `lt` is equivalent to the `<` sign, args[0] and args[1] must be the same type.
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["lt", 1, 2].unwrap().matches(&json!({})).unwrap());
+/// assert!(rule!["lt", "10", "2"].unwrap().matches(&json!({})).unwrap());
+/// assert!(rule!["lt", 1.1, 1.23].unwrap().matches(&json!({})).unwrap());
+/// assert_eq!(rule!["lt", 1.23, 1.1].unwrap().matches(&json!({})).unwrap(), false);
+/// assert_eq!(rule!["lt", 2, 1].unwrap().matches(&json!({})).unwrap(), false);
+/// ```
 pub fn lt(args: Vec<Arg>) -> Arg {
     Arg::Bool(args.windows(2).all(|w| w[0] < w[1]))
 }
@@ -303,10 +317,43 @@ pub fn regex(args: Vec<Arg>) -> Arg {
     }
 }
 
+/// Convert a string into a number.
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["=", ["num", "100"], 100].unwrap().matches(&json!({})).unwrap());
+/// assert!(rule!["=", ["num", "1.23"], 1.23].unwrap().matches(&json!({})).unwrap());
+/// assert_eq!(rule!["=", "100", 100].unwrap().matches(&json!({})).unwrap(), false);
+/// ```
+pub fn num(args: Vec<Arg>) -> Arg {
+    let a = args[0].clone();
+    match a {
+        Arg::Int(_) => a,
+        Arg::Float(_) => a,
+        Arg::String(v) => {
+            match v.parse::<i64>() {
+                Ok(i) => Arg::Int(i),
+                Err(_) => match v.parse::<f64>() {
+                    Ok(f) => Arg::Float(f),
+                    Err(_) => Arg::Int(0i64),
+                }
+            }
+        },
+        _ => Arg::Int(Into::<i64>::into(a)),
+    }
+}
+
+/// Convert a number into a string.
+///
+/// ```
+/// use ::rule::{rule, json};
+/// assert!(rule!["=", ["string", 100], "100"].unwrap().matches(&json!({})).unwrap());
+/// ```
+pub fn string(args: Vec<Arg>) -> Arg {
+    Arg::String(String::from(&args[0]))
+}
+
 // TODO: add more OPs
-//
-//    num
-//    string
 //
 //    ('contains', None),
 //    ('onlycontains/allin', None),

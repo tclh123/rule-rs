@@ -180,7 +180,6 @@ impl Into<i64> for Arg {
             Arg::Bool(v) => v as i64,
             Arg::Int(v) => v,
             Arg::Float(v) => v as i64,
-            // kinda werid? maybe parse to int
             Arg::String(v) => v.parse().unwrap_or(0i64),
             _ => 0,
         }
@@ -194,7 +193,6 @@ impl<'a> Into<i64> for &'a Arg {
             Arg::Bool(v) => *v as i64,
             Arg::Int(v) => *v,
             Arg::Float(v) => *v as i64,
-            // kinda werid? maybe parse to int
             Arg::String(v) => v.parse().unwrap_or(0i64),
             _ => 0,
         }

@@ -132,3 +132,13 @@ fn rule_match_string_op() -> Result<()> {
     assert!(rule!["regex", "hello", "^he[l-o]{3}$"]?.matches(&json!({}))?);
     Ok(())
 }
+
+#[test]
+fn rule_match_casting_op() -> Result<()> {
+    assert!(rule!["=", ["num", "100"], 100]?.matches(&json!({}))?);
+    assert!(rule!["=", ["num", "1.23"], 1.23]?.matches(&json!({}))?);
+    assert_eq!(rule!["=", "100", 100]?.matches(&json!({}))?, false);
+    assert!(rule!["=", ["string", 100], "100"]?.matches(&json!({}))?);
+    Ok(())
+}
+
